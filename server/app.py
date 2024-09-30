@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+from models.models import Owner, Pet, Sitter, Service
 
 # Standard library imports
 
