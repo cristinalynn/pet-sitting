@@ -29,10 +29,11 @@ class Owner(db.Model, SerializerMixin, UserMixin):
 
     @password_hash.setter
     def password_hash(self, password):
-        password_hash = bcrypt.generate_password_hash(password.encode('utf-8'))
-        self._password_hash = password_hash.decode('utf-8')
+      self._password_hash = bcrypt.generate_password_hash(password).decode('utf-8')
 
     def authenticate(self, password):
+        if not password:
+            return False
         return bcrypt.check_password_hash(self._password_hash, password.encode('utf-8'))
     
     def __repr__(self):

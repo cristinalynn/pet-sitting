@@ -1,6 +1,8 @@
 from sqlalchemy_serializer import SerializerMixin
 from config import db
 from .owner import Owner
+from .sitter import Sitter
+
 
 
 class Pet(db.Model, SerializerMixin):
@@ -13,11 +15,12 @@ class Pet(db.Model, SerializerMixin):
     
 
      # FOREIGN KEYS
-    owner_id = db.Column(db.Integer, db.ForeignKey('owner.id'), nullable=True)
-    sitter_id = db.Column(db.Integer, db.ForeignKey('sitter.id'), nullable=True)
+    owner_id = db.Column(db.Integer, db.ForeignKey('owners.id'), nullable=True)
+    sitter_id = db.Column(db.Integer, db.ForeignKey('sitters.id'), nullable=True)
 
     # RELATIONSHIPS
     owner = db.relationship('Owner', back_populates='pets')
+    sitter = db.relationship('Sitter', back_populates='pets')
     
     # SERIALIZATION
     # serialize_rules = ( '-owner')
