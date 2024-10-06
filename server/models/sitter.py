@@ -14,6 +14,6 @@ class Sitter(db.Model, SerializerMixin):
     pets = db.relationship('Pet', back_populates='sitter', lazy=True)
 
     def __repr__(self):
-        return f"<Sitter {self.name}>"
+        return f'<Sitter {self.name}>'
     
    

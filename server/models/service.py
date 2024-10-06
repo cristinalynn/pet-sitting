@@ -24,4 +24,4 @@ class Service(db.Model, SerializerMixin):
         return value
 
     def __repr__(self):
-        return f"<Service {self.name}, Price: {self.price}, Duration: {self.price}>"
+        return f'<Service {self.name}, Price: {self.price}, Duration: {self.price}>'

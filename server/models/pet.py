@@ -26,4 +26,4 @@ class Pet(db.Model, SerializerMixin):
     # serialize_rules = ( '-owner')
 
     def __repr__(self):
-        return f"<Pet {self.name}>"
+        return f'<Pet {self.name}>'
