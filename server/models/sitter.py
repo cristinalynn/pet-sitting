@@ -16,4 +16,4 @@ class Sitter(db.Model, SerializerMixin):
     def __repr__(self):
         return f"<Sitter {self.name}>"
     
-    # sqlalchemy.exc.NoReferencedTableError: Foreign key associated with column 'pets.sitter_id' could not find table 'sitter' with which to generate a foreign key to target column 'id'
+   
