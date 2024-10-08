@@ -1,7 +1,7 @@
-from .owner import Owner
-from .pet import Pet
-from .sitter import Sitter
-from .service import Service
+from .owner import *
+from .pet import *
+from .sitter import *
+from .service import *
 
 
 

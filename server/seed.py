@@ -17,23 +17,42 @@ def seed_pets():
     # Clear existing data
     Pet.query.delete()
 
-    # List of sample pet names and breeds
-    pet_names = ['Buddy', 'Max', 'Charlie', 'Bella', 'Lucy']
-    pet_breeds = ['Golden Retriever', 'Bulldog', 'Beagle', 'Poodle', 'German Shepherd']
+    # List of sample pets with specific attributes
+
+    pets = [
+        {
+            "name": "Buddy",
+            "breed": "Golden retriever",
+            "age": 5
+        },
+        {
+            "name": "Bella",
+            "breed": "Poodle",
+            "age": 3
+        }
+    ]
+
+    owners = {owner.name: owner for owner in Owner.query.all()}
 
     # Seed pets with random attributes
-    pets = []
-    for _ in range(5):  # Create 5 pets
+    # pets = []
+    for pet_data in pets:
+        # Find or create owner
+        owner = Owner.query.filter_by(name=pet_data["owner"]).first()
+        if not owner:
+            owner = Owner(name=pet_data["owner"])
+            db.session.add(owner)
+            db.session.commit()
+
         new_pet = Pet(
-            name=rc(pet_names),
-            breed=rc(pet_breeds),
-            age=randint(1, 15),  # Random age between 1 and 15
-            owner_id=randint(1, 2),  # Assuming there are 2 seeded owners
+            name=pet_data["name"],
+            breed=pet_data["breeds"],
+            age=pet_data["age"],  
+            owner_id=owner.id, 
             sitter_id=None  # Can assign sitters later
         )
-        pets.append(new_pet)
 
-    db.session.add_all(pets)
+    db.session.add(new_pet)
     db.session.commit()
 
 # SEEDS OWNER
@@ -41,10 +60,10 @@ def seed_owners():
     Owner.query.delete()
     owners =[]
 
-    owner1 = Owner(email= 'fakemail1@email.com', _password_hash= 'testpasstest1')
+    owner1 = Owner(name= 'fakename1', email= 'fakemail1@email.com', _password_hash= 'testpasstest1')
     owners.append(owner1)
 
-    owner2 = Owner(email= 'fakemail2@email.com', _password_hash= 'testpasstest2')
+    owner2 = Owner(name= 'fakename2', email= 'fakemail2@email.com', _password_hash= 'testpasstest2')
     owners.append(owner2)
 
     db.session.add_all(owners)

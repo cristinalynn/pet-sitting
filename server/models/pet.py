@@ -1,7 +1,7 @@
 from sqlalchemy_serializer import SerializerMixin
 from config import db
-from .owner import Owner
-from .sitter import Sitter
+from .owner import *
+from .sitter import *
 
 
 
@@ -23,7 +23,7 @@ class Pet(db.Model, SerializerMixin):
     sitter = db.relationship('Sitter', back_populates='pets')
     
     # SERIALIZATION
-    # serialize_rules = ( '-owner')
+    serialize_rules = ( '-owner', '-owners')
 
     def __repr__(self):
         return f'<Pet {self.name}>'
