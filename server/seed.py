@@ -8,7 +8,7 @@ from faker import Faker
 
 # Local imports
 from app import app
-from models.models import db, Owner, Pet, Service, Sitter
+from models.models import db, Owner, Pet, Service, Sitter, Availability
 from config import app, db
 
 # SEEDS PETS
@@ -23,12 +23,14 @@ def seed_pets():
         {
             "name": "Buddy",
             "breed": "Golden retriever",
-            "age": 5
+            "age": 5,
+            "owner": "fakename1"
         },
         {
             "name": "Bella",
             "breed": "Poodle",
-            "age": 3
+            "age": 3,
+            "owner": "fakename2" 
         }
     ]
 
@@ -46,13 +48,13 @@ def seed_pets():
 
         new_pet = Pet(
             name=pet_data["name"],
-            breed=pet_data["breeds"],
+            breed=pet_data["breed"],
             age=pet_data["age"],  
             owner_id=owner.id, 
             sitter_id=None  # Can assign sitters later
         )
 
-    db.session.add(new_pet)
+        db.session.add(new_pet)
     db.session.commit()
 
 # SEEDS OWNER
@@ -85,23 +87,41 @@ def seed_services():
     db.session.add_all(services)
     db.session.commit()
 
+# SEEDS AVAILIBILITY
+def seed_availability():
+    # Clear existing data
+    Availability.query.delete()
+
+    availability_options = ["Full-Time", "Part-Time", "Occasional"]
+    
+    availabilities = [Availability(type=option) for option in availability_options]
+    db.session.add_all(availabilities)
+    db.session.commit()    
+
 # SEEDS SITTERS
 def seed_sitters():
     # Clear existing data
     Sitter.query.delete()
 
-    # Use Faker to generate random sitter data
-    sitters = []
-    for _ in range(5):  # Create 5 sitters
-        sitter = Sitter(
-            name=fake.name(),
-            address=fake.address(),
-            email=fake.email(),
-            availability=rc(['Full-time', 'Part-time', 'Occasional'])
-        )
-        sitters.append(sitter)
+    sitter= Sitter(
+            name="Cristina",
+            address="123 Many Animals Rd",
+            email="animal.sitter@email.com",
+            # "availability": ["Full-time", "Part-time", "Occasional"
+    )
 
-    db.session.add_all(sitters)
+    db.session.add(sitter)
+    db.session.commit()
+
+     # Fetch availability types
+    full_time = Availability.query.filter_by(type="Full-Time").first()
+    part_time = Availability.query.filter_by(type="Part-Time").first()
+    occasional = Availability.query.filter_by(type="Occasional").first()
+
+    # Associate the sitter with all availability types
+    sitter.availabilities = [full_time, part_time, occasional]
+
+    # Commit the changes to the database
     db.session.commit()
 
 if __name__ == '__main__':
@@ -110,6 +130,7 @@ if __name__ == '__main__':
         print("Starting seed...")
         
          # Call the seed functions
+        seed_availability() 
         seed_owners()
         seed_sitters()
         seed_services()

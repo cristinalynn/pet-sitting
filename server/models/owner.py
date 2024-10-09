@@ -15,6 +15,9 @@ class Owner(db.Model, SerializerMixin, UserMixin):
    # RELATIONSHIPS
     pets = db.relationship('Pet', back_populates='owner', lazy=True)
 
+     # SERIALIZATION
+    serialize_rules = ( '-_password_hash', )
+
     # VALIDATION
     @validates('email')
     def validates_email(self, key, value):
