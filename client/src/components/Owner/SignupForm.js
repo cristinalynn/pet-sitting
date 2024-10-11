@@ -6,7 +6,6 @@ import { useNavigate } from 'react-router-dom';
 
 const validationSchema = yup.object({
     name: yup.string()
-      .name('Invalid name')
       .required('Name required'),
     email: yup.string()
       .email('Invalid email address')
@@ -58,10 +57,10 @@ const SignupForm = ({onSignUpSuccess}) => {
   });
 
   return (
-    <div classname="signupform">
+    <div className="signupform">
         <form onSubmit={formik.handleSubmit}>
             <h2>Sign Up</h2>
-            <div classname="input-box">
+            <div className="input-box">
             <input
                 placeholder="Name"
                 name="name"
@@ -74,7 +73,7 @@ const SignupForm = ({onSignUpSuccess}) => {
               <div className='error'>{formik.errors.name}</div>
             )}
             </div>
-            <div classname="input-box">
+            <div className="input-box">
             <input
                 placeholder="Email"
                 name="email"
@@ -87,7 +86,7 @@ const SignupForm = ({onSignUpSuccess}) => {
               <div className='error'>{formik.errors.email}</div>
             )}
             </div>
-            <div classname="input-box">
+            <div className="input-box">
                 <input
                 placeholder="Password"
                 name="password"
@@ -100,8 +99,8 @@ const SignupForm = ({onSignUpSuccess}) => {
                    <div className='error'>{formik.errors.password}</div>
                 )}
             </div>
-            <button classname="button" type="submit">Create Account</button>
-            {error && <div classname="error">{error}</div>}
+            <button className="button" type="submit">Create Account</button>
+            {error && <div className="error">{error}</div>}
             <p><a href="/login"></a></p>
         </form>
     </div>

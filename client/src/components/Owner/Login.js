@@ -4,10 +4,7 @@ import * as yup from 'yup';
 import { useNavigate } from 'react-router-dom';
 import './owner.css'
 
-const validationSchema = yup.object({
-  name: yup.string()
-    .name('Invalid name')
-    .required('Name required'),  
+const validationSchema = yup.object({  
   email: yup.string()
     .email('Invalid email address')
     .required('Email required'),
@@ -22,7 +19,6 @@ const Login = ({ onLoginSuccess }) => {
   
     const formik = useFormik({
       initialValues: {
-        name: '',
         email: '',
         password: '',
       },
@@ -51,19 +47,6 @@ const Login = ({ onLoginSuccess }) => {
           <div className="box">
             <form onSubmit={formik.handleSubmit}>
               <h2>Login</h2>
-              <div className="input-box">
-                <input
-                  placeholder="Name"
-                  name="name"
-                  type="name"
-                  onChange={formik.handleChange}
-                  onBlur={formik.handleBlur}
-                  value={formik.values.name}
-                />
-                {formik.touched.name && formik.errors.name && (
-                  <div className='error'>{formik.errors.name}</div>
-                )}
-              </div>
               <div className="input-box">
                 <input
                   placeholder="Email"
