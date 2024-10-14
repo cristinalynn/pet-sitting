@@ -24,8 +24,6 @@ function App() {
       <NavBar isLoggedIn={isLoggedIn} />
       <Routes>
         <Route path="/" element={<Home />} />
-        {/* <Route path="/recipes" element={<Recipes />} /> */}
-        {/* <Route path="/savedrecipes" element={<SavedRecipes />} /> */}
         <Route path="/pets" element={<PetForm />} />
         <Route
           path="/signup"

@@ -7,13 +7,13 @@ function PetForm() {
     name: '',
     breed: '',
     age: '',
-    availability_id: '',
-    owner_id: '', 
+    service_id: '',  // Replace availability_id with service_id
+    owner_id: '',
   });
 
   const [currentOwner, setCurrentOwner] = useState(null);
-  const [availability, setAvailability] = useState([]);
-  const [selectedAvailability, setSelectedAvailability] = useState('');
+  const [services, setServices] = useState([]); // Fetch services instead
+  const [selectedService, setSelectedService] = useState(null); // Store selected service
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -24,13 +24,11 @@ function PetForm() {
         if (response.ok) {
           const ownerData = await response.json();
           setCurrentOwner(ownerData);
-          // Set owner_id in the form data
-          setFormData(prevState => ({
+          setFormData((prevState) => ({
             ...prevState,
             owner_id: ownerData.id,
           }));
         } else {
-          // Redirect to login page if not authenticated
           navigate('/login');
         }
       } catch (error) {
@@ -42,16 +40,16 @@ function PetForm() {
   }, [navigate]);
 
   useEffect(() => {
-    fetchAvailability();
+    fetchServices();
   }, []);
 
-  const fetchAvailability = async () => {
+  const fetchServices = async () => {
     try {
-      const response = await fetch('/api/availability');
+      const response = await fetch('/api/services');
       const data = await response.json();
-      setAvailability(data);
+      setServices(data);
     } catch (error) {
-      console.error('Error fetching availability:', error);
+      console.error('Error fetching services:', error);
     }
   };
 
@@ -60,10 +58,9 @@ function PetForm() {
     setFormData({ ...formData, [name]: value });
   };
 
-  const handleAvailabilityChange = (e) => {
-    const value = e.target.value;
-    setSelectedAvailability(value);
-    setFormData({ ...formData, availability_id: value });
+  const handleServiceSelect = (service) => {
+    setSelectedService(service);
+    setFormData({ ...formData, service_id: service.id });
   };
 
   const handleSubmit = async (e) => {
@@ -81,7 +78,18 @@ function PetForm() {
       if (response.ok) {
         setSuccessMessage('Pet added successfully!');
         setErrorMessage('');
-        // Optionally clear form data or navigate
+
+        // Reset form data
+        setFormData({
+            name: '',
+            breed: '',
+            age: '',
+            service_id: '',  // Ensure the field name matches
+            owner_id: formData.owner_id,  // Retain owner_id
+        });
+
+        setSelectedService(null);  // Clear selected service
+
         navigate('/pets');
       } else {
         const errorData = await response.json();
@@ -95,12 +103,29 @@ function PetForm() {
     }
   };
 
+  const formatDuration = (minutes) => {
+    if (minutes < 60) {
+      return `${minutes} minutes`;
+    } else if (minutes < 1440) {  // Less than 1 day (1440 minutes)
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+      return `${hours} hour${hours > 1 ? 's' : ''}${remainingMinutes > 0 ? `, ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}` : ''}`;
+    } else {
+      const days = Math.floor(minutes / 1440);
+      const remainingMinutes = minutes % 1440;
+      const hours = Math.floor(remainingMinutes / 60);
+      return `${days} day${days > 1 ? 's' : ''}${hours > 0 ? `, ${hours} hour${hours > 1 ? 's' : ''}` : ''}`;
+    }
+  };
+  
+  
+
   return (
     <div>
       <h2>Add a New Pet</h2>
       {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
       {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
-      
+
       <form onSubmit={handleSubmit}>
         <div>
           <label>Pet Name:</label>
@@ -136,20 +161,35 @@ function PetForm() {
         </div>
 
         <div>
-          <label>Availability:</label>
-          <select
-            name="availability_id"
-            value={selectedAvailability}
-            onChange={handleAvailabilityChange}
-            required
-          >
-            <option value="">Select Availability</option>
-            {availability.map(option => (
-              <option key={option.id} value={option.id}>
-                {option.name} {/* Assuming the availability data has a 'name' field */}
-              </option>
-            ))}
-          </select>
+          <h3>Select a Service</h3>
+          <table border="1" cellPadding="10">
+            <thead>
+              <tr>
+                <th>Service Name</th>
+                <th>Price ($)</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              {services.map((service) => (
+                <tr
+                  key={service.id}
+                  onClick={() => handleServiceSelect(service)}
+                  style={{
+                    backgroundColor: selectedService?.id === service.id ? 'lightblue' : 'white',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <td>{service.name}</td>
+                  <td>{service.price}</td>
+                  <td>{formatDuration(service.duration)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {selectedService && (
+            <p>Selected Service: {selectedService.name}</p>
+          )}
         </div>
 
         <button type="submit">Add Pet</button>

@@ -1,5 +1,5 @@
 import React from 'react';
-import PetForm  from './Pets/PetForm';
+import SitterHomePage  from './Sitter/SitterHomePage';
 
 
 
@@ -11,10 +11,9 @@ function Home() {
       <header>
         <h1>Happy Tails</h1>
       </header>
-     
-      {/* <main>
-        <PetForm />
-      </main> */}
+      <main>
+        <SitterHomePage />
+      </main>
     </div>
   );
 }
