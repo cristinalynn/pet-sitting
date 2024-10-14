@@ -108,7 +108,7 @@ function Profile({onLogout}) {
               </form>
             )}
           </Formik>
-          <div className="button-logout-container">
+          <div className="button-logout">
           <button className='button-logout' onClick={handleLogout}>Logout</button>
           </div>
         </>

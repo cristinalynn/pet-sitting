@@ -1,0 +1,132 @@
+/* Header Style */
+h2 {
+  font-family: "Playfair Display", italic, serif;
+  font-size: 30px;
+  color: #430f58;
+  margin-top: 69px;
+  margin-bottom: 20px;
+  text-align: center;
+  font-weight: 300;
+}
+
+/* Add Pet Form Card */
+.add-pet-card {
+  max-width: 32rem;
+  margin: 0 auto;
+  background: linear-gradient(to bottom, rgba(127, 17, 224, 0.6), rgba(248, 180, 0, 0.3));
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 1rem;
+  backdrop-filter: blur(0.65em);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1), 0 2px 4px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  transition: transform 0.3s, box-shadow 0.3s;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  position: relative;
+  width: 100%;
+}
+
+/* Form Input Fields */
+.add-pet-card input[type="text"],
+.add-pet-card input[type="number"],
+.add-pet-card textarea {
+  width: 100%;
+  padding: 10px;
+  font-size: 16px;
+  margin-bottom: 20px;
+  color: #040404;
+  border: 1px solid #040404;
+  border-bottom-style: solid;
+  outline: none;
+  letter-spacing: 1px;
+  background: transparent;
+  resize: none;
+}
+
+/* Placeholder Styling */
+.add-pet-card input::placeholder,
+.add-pet-card textarea::placeholder {
+  color: #040404;
+  font-family: "Quicksand";
+  font-weight: 500;
+}
+
+/* Form Labels */
+.add-pet-card label {
+  color: #050505;
+  font-family: "Quicksand";
+  font-weight: 600;
+  letter-spacing: 1px;
+  display: block;
+  margin-bottom: 5px;
+}
+
+
+/* Select Box */
+.add-pet-card select {
+  appearance: none;
+  outline: 0;
+  background: rgba(248, 180, 0, 0.1);
+  width: 100%;
+  padding: 10px;
+  color: black;
+  border: 2px solid black;
+  border-radius: 10px;
+  font-family: "Quicksand";
+  font-weight: 500;
+  margin-bottom: 20px;
+}
+
+/* Submit Button */
+.add-pet-card button[type="submit"] {
+  background-color: #430f58;
+  color: #fff;
+  font-family: "Quicksand";
+  font-weight: 600;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+}
+
+.add-pet-card button[type="submit"]:hover {
+  background-color: #8594e4;
+}
+
+/* Success and Error Messages */
+.success-message {
+  color: black;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+.error-message {
+  color: red;
+  font-weight: bold;
+  margin-bottom: 20px;
+}
+
+/* Table for Services */
+.service-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  margin-bottom: 20px;
+}
+
+.service-table th,
+.service-table td {
+  padding: 10px;
+  text-align: left;
+  border: 1px solid #ddd;
+}
+
+.service-table tr:hover {
+  background-color: lightblue;
+}
+
+/* Selected Service Highlight */
+.service-table tr.selected {
+  background-color: lightblue;
+}

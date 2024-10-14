@@ -1,0 +1,32 @@
+
+/*NAVBAR*/
+
+.navbar {
+    background-color: #430f58;
+    position:fixed;
+    top: 0;
+    width: 100%;
+    overflow: hidden;
+    text-align: center;
+    /* prevents content from covering navbar*/
+    z-index: 1;
+}
+
+/* NAVBAR LINKS*/
+nav a {
+    display: inline-block;
+    margin: 1rem;
+    padding: 0.25rem;
+    text-decoration:solid;
+    font-size: 1.2em;
+    color: rgb(250, 250, 250);
+    border-bottom: 2px solid #fff;
+    transition: 0.1s;
+}
+
+/* NAVBAR CHANGES OVER HOVER*/
+nav a:hover,
+nav a:active {
+ color: #6643b5;
+ background: #d5def5 5%;
+}

@@ -5,3 +5,53 @@
   --text: hsla(0, 0%, 100%, 0.88);
 }
 
+/* 
+  ==========================
+          ALL BUTTONS 
+  ==========================
+*/
+
+/* ALL BUTTONS*/
+.button {
+  background-color: #ffffff;
+  border: none;
+  color: #000000; 
+  padding: 10px 20px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  margin: 4px 2px;
+  cursor: pointer;
+  border-radius: 20px;
+  font-family: "Quicksand";
+  font-weight: 800;
+ }
+
+header h1 {
+  color: black; /* Change to a visible color */
+  margin-bottom: 20px;
+  font-size: 40px;
+  text-align: center;
+  margin-top: 70px;
+  padding: 10px;
+  color: #430f58;
+}
+
+/*
+.first-color { 
+	background: #d5def5; 
+}
+	
+.second-color { 
+	background: #8594e4; 
+}
+
+.third-color { 
+	background: #6643b5; 
+}
+
+.fourth-color { 
+	background: #430f58; 
+}
+*/
+

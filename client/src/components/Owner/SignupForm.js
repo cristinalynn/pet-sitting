@@ -57,6 +57,7 @@ const SignupForm = ({onSignUpSuccess}) => {
   });
 return (
     <div className='signupform'>
+        <div className="box">
         <form onSubmit={formik.handleSubmit}>
             <h2>Sign Up</h2>
             <div className='input-box'>
@@ -102,6 +103,7 @@ return (
                 {error && <div className="error">{error}</div>}
                 <p><a href="/login">Login</a></p>
         </form>
+        </div>
     </div>
 
   );

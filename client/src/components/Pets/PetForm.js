@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
+import './petform.css'
 
 function PetForm() {
   const navigate = useNavigate();
@@ -7,7 +8,7 @@ function PetForm() {
     name: '',
     breed: '',
     age: '',
-    service_id: '',  // Replace availability_id with service_id
+    service_id: '',  
     owner_id: '',
   });
 
@@ -121,10 +122,10 @@ function PetForm() {
   
 
   return (
-    <div>
+    <div className='add-pet-card'>
       <h2>Add a New Pet</h2>
-      {successMessage && <p style={{ color: 'green' }}>{successMessage}</p>}
-      {errorMessage && <p style={{ color: 'red' }}>{errorMessage}</p>}
+      {successMessage && <p className='success-message'>{successMessage}</p>}
+      {errorMessage && <p className='error-message'>{errorMessage}</p>}
 
       <form onSubmit={handleSubmit}>
         <div>

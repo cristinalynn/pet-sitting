@@ -1,0 +1,55 @@
+/* Ensure the entire page is centered*/
+html, body {
+  height: 100%;
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background-color: #f0f8ff;  /*Light background for visual contrast */
+}
+
+/* Center the whole content area */
+.sitter-home-page {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  width: 80%; /* Adjust width to fit content */
+  margin: 0 auto;
+  padding: 20px;
+  background-color: #ffffff;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  border-radius: 12px;
+}
+
+/* Section styling */
+.sitter-home-page section {
+  margin-bottom: 20px;
+  width: 100%;
+  text-align: center;
+}
+
+/* Table styling */
+.services-table table {
+  margin: 0 auto;
+  width: 80%; /* Adjust table width */
+  border-collapse: collapse;
+}
+
+.services-table th,
+.services-table td {
+  border: 1px solid #ddd;
+  padding: 10px;
+}
+
+.services-table th {
+  background-color: #f2f2f2;
+}
+
+/* Carousel styling */
+.pet-carousel img {
+    width: 100%;
+    max-height: 550px;
+    object-fit: cover;
+    border-radius: 10px;
+  }
+  
