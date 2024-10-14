@@ -1,6 +1,6 @@
 from flask import request, make_response
 from flask_restful import Resource
-from flask_login import login_required
+# from flask_login import login_required
 
 # Local imports
 from config import db, api
@@ -12,7 +12,7 @@ from models.models import Service
 class ServiceResource(Resource):
     
     # GET all services or a specific service by ID
-    @login_required
+    # @login_required
     def get(self, service_id=None):
         if service_id:
             service = Service.query.get(service_id)
@@ -24,7 +24,7 @@ class ServiceResource(Resource):
             return [service.to_dict() for service in services], 200 
 
     # POST - Create a new service
-    @login_required
+    #@login_required
     def post(self):
         form_data = request.get_json()
 
@@ -43,7 +43,7 @@ class ServiceResource(Resource):
         return make_response(new_service.to_dict(), 201)
 
     # PATCH - Update a specific service by ID
-    @login_required
+    #@login_required
     def patch(self, service_id):
         service = Service.query.get(service_id)
         if not service:
@@ -59,7 +59,7 @@ class ServiceResource(Resource):
         return make_response(service.to_dict(), 200)
 
     # DELETE - Delete a specific service by ID
-    @login_required
+    #@login_required
     def delete(self, service_id):
         service = Service.query.get(service_id)
         if not service:

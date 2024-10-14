@@ -1,6 +1,6 @@
 from flask import request, make_response
 from flask_restful import Resource
-from flask_login import login_required
+#from flask_login import login_required
 
 # Local imports
 from config import db, api
@@ -12,7 +12,7 @@ from models.models import Pet
 class PetResource(Resource):
 
     # GET all pets or a specific pet by ID
-    @login_required
+    #@login_required
     def get(self, pet_id=None):
         if pet_id:
             pet = Pet.query.get(pet_id)
@@ -24,7 +24,7 @@ class PetResource(Resource):
             return [pet.to_dict() for pet in pets], 200 
 
     # POST - Create a new pet    
-    @login_required
+    #@login_required
     def post(self):
         form_data = request.get_json()
 
@@ -45,7 +45,7 @@ class PetResource(Resource):
         return make_response(new_pet.to_dict(), 201)
 
     # DELETE a specific pet by ID
-    @login_required 
+    #@login_required 
     def delete(self, pet_id):
         pet = Pet.query.get(pet_id)
         if not pet:
@@ -56,7 +56,7 @@ class PetResource(Resource):
         return make_response({}, 204)
     
     # PATCH - Update a specific pet by ID
-    @login_required
+    #@login_required
     def patch(self, pet_id):
         pet = Pet.query.get(pet_id)
         if not pet:

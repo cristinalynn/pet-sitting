@@ -78,10 +78,10 @@ def seed_services():
 
     # List of services
     services = [
-        Service(name="Dog Walking", price=20.0, duration=30),
-        Service(name="Boarding", price=100.0, duration=1440),  # 1440 minutes = 24 hours
-        Service(name="Drop ins", price=10.0, duration=15),
-        Service(name="Training", price=50.0, duration=60)
+        Service(name="Dog Walking", price=30.0, duration=30),
+        Service(name="Boarding", price=50.0, duration=1440),  # 1440 minutes = 24 hours
+        Service(name="Drop ins", price=15.0, duration=15),
+        Service(name="Day care", price=40.0, duration=480)
     ]
 
     db.session.add_all(services)

@@ -1,6 +1,6 @@
 from flask import request, make_response
 from flask_restful import Resource
-from flask_login import login_required
+# from flask_login import login_required
 
 # Local imports
 from config import db, api
@@ -12,7 +12,7 @@ from models.models import Sitter
 class SitterResource(Resource):
 
     # GET all sitters or a specific sitter by ID
-    @login_required
+    # @login_required
     def get(self, sitter_id=None):
         if sitter_id:
             sitter = Sitter.query.get(sitter_id)
@@ -24,7 +24,7 @@ class SitterResource(Resource):
             return [sitter.to_dict() for sitter in sitters], 200 
 
     # POST - Create a new sitter
-    @login_required
+    # @login_required
     def post(self):
         form_data = request.get_json()
 
@@ -49,7 +49,7 @@ class SitterResource(Resource):
         return make_response(new_sitter.to_dict(), 201)
 
     # PATCH - Update a specific sitter by ID
-    @login_required
+    # @login_required
     def patch(self, sitter_id):
         sitter = Sitter.query.get(sitter_id)
         if not sitter:
@@ -65,7 +65,7 @@ class SitterResource(Resource):
         return make_response(sitter.to_dict(), 200)
 
     # DELETE - Delete a specific sitter by ID
-    @login_required
+    # @login_required
     def delete(self, sitter_id):
         sitter = Sitter.query.get(sitter_id)
         if not sitter:

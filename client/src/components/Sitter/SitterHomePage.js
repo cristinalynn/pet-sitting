@@ -13,7 +13,7 @@ function SitterHomePage() {
 
   const [availability, setAvailability] = useState("Full-Time");
   const [carouselImages, setCarouselImages] = useState([
-    "../../Images/dogs.jpg", 
+    "../Images/dogs.jpg", 
     "../Images/cats.jpg", 
     "../Images/birds.jpg", 
     "../Images/lizard.jpg",
