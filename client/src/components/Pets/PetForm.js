@@ -90,8 +90,8 @@ function PetForm() {
         });
 
         setSelectedService(null);  // Clear selected service
-
-        navigate('/pets');
+    //  Refresh profile or navigate back to profile page
+        navigate('/owner');
       } else {
         const errorData = await response.json();
         setErrorMessage(errorData.error || 'Failed to add the pet.');

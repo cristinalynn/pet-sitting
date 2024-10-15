@@ -2,9 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom'; 
 import { Formik } from 'formik';
 import './owner.css'
+import EditPets from '../Pets/EditPets';
 
 function Profile({onLogout}) {
   const [owner, setOwner] = useState(null);
+  const [editingPet, setEditingPet] = useState(null);
+  const [errorMessage, setErrorMessage] = useState('')
   const navigate = useNavigate(); 
 
   useEffect(() => {
@@ -63,6 +66,44 @@ function Profile({onLogout}) {
     }
   };
 
+  const handleEditClick = (pet) => {
+    setEditingPet(pet); // Set the selected pet for editing
+  };
+
+  const handleCancelEdit = () => {
+    setEditingPet(null); // Cancel editing
+  };
+
+  const updatePets = (updatedPet) => {
+    // Update the pet list after editing
+    const updatedPets = owner.pets.map((pet) =>
+      pet.id === updatedPet.id ? updatedPet : pet
+    );
+    setOwner({ ...owner, pets: updatedPets });
+  };
+
+  const handleDeletePet = async (petId) => {
+    try {
+      const response = await fetch(`/api/pets/${petId}`, {
+        method: 'DELETE',
+      });
+
+      if (response.ok) {
+        // Remove the pet from the list after successful deletion
+        const updatedPets = owner.pets.filter((pet) => pet.id !== petId);
+        setOwner({ ...owner, pets: updatedPets });
+        setErrorMessage('');
+      } else {
+        const errorData = await response.json();
+        setErrorMessage(errorData.error || 'Failed to delete the pet.');
+      }
+    } catch (error) {
+      console.error('Error deleting pet:', error);
+      setErrorMessage('An error occurred while deleting the pet.');
+    }
+  };
+
+
   return (
     <div className='profile'>
     <h1>Hello {owner ? owner.name : ''}!</h1>
@@ -92,19 +133,32 @@ function Profile({onLogout}) {
                     placeholder="Enter your name"
                   />
                 </div>
-                {/* <div className='input-box'>
-                  <input
-                    type="text"
-                    id="bio"
-                    name="bio"
-                    value={values.bio}
-                    onChange={handleChange}
-                    placeholder="Enter your bio"
-                  />
-                </div> */}
+                
                 <button className="button" type="submit" disabled={isSubmitting}>
                   Save
                 </button>
+                {/* Display the owner's pets */}
+          <h2>Your Pets</h2>
+          {owner.pets && owner.pets.length > 0 ? (
+            <ul>
+              {owner.pets.map((pet) => (
+                <li key={pet.id}>
+                  {pet.name} - {pet.breed}, Age: {pet.age}
+                  <button className='button' onClick={() => handleEditClick(pet)}> Edit </button>
+                  <button className='button' onClick={() => handleDeletePet(pet.id)}>Delete</button>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>You have no pets added yet.</p>
+          )}
+          {editingPet && (
+            <EditPets
+                pet={editingPet}
+                onCancel={handleCancelEdit}
+                updatePets={updatePets}
+            />
+          )}
               </form>
             )}
           </Formik>
