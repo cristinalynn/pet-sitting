@@ -1,20 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import './petform.css'
+import { useFormik } from 'formik';
+import * as Yup from 'yup'; // For form validation schema
+import './petform.css';
 
 function PetForm() {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    name: '',
-    breed: '',
-    age: '',
-    service_id: '',  
-    owner_id: '',
-  });
-
   const [currentOwner, setCurrentOwner] = useState(null);
-  const [services, setServices] = useState([]); // Fetch services instead
-  const [selectedService, setSelectedService] = useState(null); // Store selected service
+  const [services, setServices] = useState([]);
+  const [selectedService, setSelectedService] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -25,10 +19,7 @@ function PetForm() {
         if (response.ok) {
           const ownerData = await response.json();
           setCurrentOwner(ownerData);
-          setFormData((prevState) => ({
-            ...prevState,
-            owner_id: ownerData.id,
-          }));
+          formik.setFieldValue('owner_id', ownerData.id); // Set owner_id in Formik
         } else {
           navigate('/login');
         }
@@ -54,89 +45,96 @@ function PetForm() {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
-  };
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      breed: '',
+      age: '',
+      service_id: '',
+      owner_id: '', // This will be populated by the owner session check
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required('Pet name is required'),
+      breed: Yup.string().required('Breed is required'),
+      age: Yup.number()
+        .min(0, 'Age must be a positive number')
+        .required('Age is required'),
+      service_id: Yup.string().required('Please select a service'),
+    }),
+    onSubmit: async (values) => {
+      try {
+        const response = await fetch('/api/pets', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(values),
+        });
+
+        if (response.ok) {
+          setSuccessMessage('Pet added successfully!');
+          setErrorMessage('');
+
+          formik.resetForm();
+          setSelectedService(null);
+          navigate('/owner');
+        } else {
+          const errorData = await response.json();
+          setErrorMessage(errorData.error || 'Failed to add the pet.');
+          setSuccessMessage('');
+        }
+      } catch (error) {
+        console.error('Error submitting form:', error);
+        setErrorMessage('An error occurred while submitting the form.');
+        setSuccessMessage('');
+      }
+    },
+  });
 
   const handleServiceSelect = (service) => {
     setSelectedService(service);
-    setFormData({ ...formData, service_id: service.id });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    try {
-      const response = await fetch('/api/pets', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        setSuccessMessage('Pet added successfully!');
-        setErrorMessage('');
-
-        // Reset form data
-        setFormData({
-            name: '',
-            breed: '',
-            age: '',
-            service_id: '',  // Ensure the field name matches
-            owner_id: formData.owner_id,  // Retain owner_id
-        });
-
-        setSelectedService(null);  // Clear selected service
-    //  Refresh profile or navigate back to profile page
-        navigate('/owner');
-      } else {
-        const errorData = await response.json();
-        setErrorMessage(errorData.error || 'Failed to add the pet.');
-        setSuccessMessage('');
-      }
-    } catch (error) {
-      console.error('Error submitting form:', error);
-      setErrorMessage('An error occurred while submitting the form.');
-      setSuccessMessage('');
-    }
+    formik.setFieldValue('service_id', service.id); // Set service_id in Formik
   };
 
   const formatDuration = (minutes) => {
     if (minutes < 60) {
       return `${minutes} minutes`;
-    } else if (minutes < 1440) {  // Less than 1 day (1440 minutes)
+    } else if (minutes < 1440) {
       const hours = Math.floor(minutes / 60);
       const remainingMinutes = minutes % 60;
-      return `${hours} hour${hours > 1 ? 's' : ''}${remainingMinutes > 0 ? `, ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}` : ''}`;
+      return `${hours} hour${hours > 1 ? 's' : ''}${
+        remainingMinutes > 0 ? `, ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}` : ''
+      }`;
     } else {
       const days = Math.floor(minutes / 1440);
       const remainingMinutes = minutes % 1440;
       const hours = Math.floor(remainingMinutes / 60);
-      return `${days} day${days > 1 ? 's' : ''}${hours > 0 ? `, ${hours} hour${hours > 1 ? 's' : ''}` : ''}`;
+      return `${days} day${days > 1 ? 's' : ''}${
+        hours > 0 ? `, ${hours} hour${hours > 1 ? 's' : ''}` : ''
+      }`;
     }
   };
-  
-  
 
   return (
-    <div className='add-pet-card'>
+    <div className="add-pet-card">
       <h2>Add a New Pet</h2>
-      {successMessage && <p className='success-message'>{successMessage}</p>}
-      {errorMessage && <p className='error-message'>{errorMessage}</p>}
+      {successMessage && <p className="success-message">{successMessage}</p>}
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
 
-      <form onSubmit={handleSubmit}>
+      <form onSubmit={formik.handleSubmit}>
         <div>
           <label>Pet Name:</label>
           <input
             type="text"
             name="name"
-            value={formData.name}
-            onChange={handleInputChange}
+            value={formik.values.name}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
             required
           />
+          {formik.touched.name && formik.errors.name ? (
+            <div className="error-message">{formik.errors.name}</div>
+          ) : null}
         </div>
 
         <div>
@@ -144,10 +142,14 @@ function PetForm() {
           <input
             type="text"
             name="breed"
-            value={formData.breed}
-            onChange={handleInputChange}
+            value={formik.values.breed}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
             required
           />
+          {formik.touched.breed && formik.errors.breed ? (
+            <div className="error-message">{formik.errors.breed}</div>
+          ) : null}
         </div>
 
         <div>
@@ -155,10 +157,14 @@ function PetForm() {
           <input
             type="number"
             name="age"
-            value={formData.age}
-            onChange={handleInputChange}
+            value={formik.values.age}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
             required
           />
+          {formik.touched.age && formik.errors.age ? (
+            <div className="error-message">{formik.errors.age}</div>
+          ) : null}
         </div>
 
         <div>
@@ -177,7 +183,8 @@ function PetForm() {
                   key={service.id}
                   onClick={() => handleServiceSelect(service)}
                   style={{
-                    backgroundColor: selectedService?.id === service.id ? 'lightblue' : 'white',
+                    backgroundColor:
+                      selectedService?.id === service.id ? 'lightblue' : 'white',
                     cursor: 'pointer',
                   }}
                 >
@@ -188,9 +195,10 @@ function PetForm() {
               ))}
             </tbody>
           </table>
-          {selectedService && (
-            <p>Selected Service: {selectedService.name}</p>
-          )}
+          {selectedService && <p>Selected Service: {selectedService.name}</p>}
+          {formik.touched.service_id && formik.errors.service_id ? (
+            <div className="error-message">{formik.errors.service_id}</div>
+          ) : null}
         </div>
 
         <button type="submit">Add Pet</button>

@@ -7,6 +7,7 @@ function NavBar({ isLoggedIn }) {
         <nav className="navbar">
             <NavLink to="/" className="navbar-link">Home</NavLink>
             {isLoggedIn && <NavLink to="/pets" className="navbar-link">Add Pet</NavLink>}
+            {isLoggedIn && <NavLink to="/editpets" className="navbar-link">Edit Pet</NavLink>}
             {isLoggedIn ? (
                 <NavLink to="/owner" className="navbar-link">Profile</NavLink>
             ) : (

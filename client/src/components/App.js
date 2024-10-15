@@ -6,6 +6,7 @@ import NavBar from "./Nav/NavBar";
 import Login from "./Owner/Login";
 import Profile from "./Owner/Profile";
 import PetForm from "./Pets/PetForm";
+import EditPets from "./Pets/EditPets";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -25,6 +26,7 @@ function App() {
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/pets" element={<PetForm />} />
+        <Route path="/editpets" element={<EditPets />} />
         <Route
           path="/signup"
           element={<SignupForm onSignUpSuccess={handleLogin} />}

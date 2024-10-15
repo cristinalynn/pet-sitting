@@ -1,15 +1,14 @@
 import React, { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom'; 
+import { useNavigate } from 'react-router-dom';
 import { Formik } from 'formik';
-import './owner.css'
-import EditPets from '../Pets/EditPets';
+import './owner.css';
 
-function Profile({onLogout}) {
+function Profile({ onLogout }) {
   const [owner, setOwner] = useState(null);
-  const [editingPet, setEditingPet] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('')
-  const navigate = useNavigate(); 
+  const [errorMessage, setErrorMessage] = useState('');
+  const navigate = useNavigate();
 
+  // Fetch the current owner's data on component mount
   useEffect(() => {
     fetchCurrentOwner();
   }, []);
@@ -32,11 +31,11 @@ function Profile({onLogout}) {
     try {
       const response = await fetch(`/api/current_owner/${owner.id}`, {
         method: 'PATCH',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(values),
+        credentials: 'include',
       });
+
       if (response.ok) {
         const updatedOwner = await response.json();
         setOwner(updatedOwner);
@@ -50,14 +49,11 @@ function Profile({onLogout}) {
 
   const handleLogout = async () => {
     try {
-      const response = await fetch('/api/logout', {
-        method: 'POST',
-      });
+      const response = await fetch('/api/logout', { method: 'POST' });
       if (response.ok) {
         setOwner(null);
         onLogout();
-        // HOME PAGE AFTER LOGGING OUT
-        navigate('/'); 
+        navigate('/');
       } else {
         console.error('Failed to logout');
       }
@@ -66,53 +62,13 @@ function Profile({onLogout}) {
     }
   };
 
-  const handleEditClick = (pet) => {
-    setEditingPet(pet); // Set the selected pet for editing
-  };
-
-  const handleCancelEdit = () => {
-    setEditingPet(null); // Cancel editing
-  };
-
-  const updatePets = (updatedPet) => {
-    // Update the pet list after editing
-    const updatedPets = owner.pets.map((pet) =>
-      pet.id === updatedPet.id ? updatedPet : pet
-    );
-    setOwner({ ...owner, pets: updatedPets });
-  };
-
-  const handleDeletePet = async (petId) => {
-    try {
-      const response = await fetch(`/api/pets/${petId}`, {
-        method: 'DELETE',
-      });
-
-      if (response.ok) {
-        // Remove the pet from the list after successful deletion
-        const updatedPets = owner.pets.filter((pet) => pet.id !== petId);
-        setOwner({ ...owner, pets: updatedPets });
-        setErrorMessage('');
-      } else {
-        const errorData = await response.json();
-        setErrorMessage(errorData.error || 'Failed to delete the pet.');
-      }
-    } catch (error) {
-      console.error('Error deleting pet:', error);
-      setErrorMessage('An error occurred while deleting the pet.');
-    }
-  };
-
-
   return (
-    <div className='profile'>
-       <h1>Hello {owner ? owner.name : ''}!</h1>
-      {owner ? (
+    <div className="profile">
+      <h1>Hello {owner ? owner.name : ''}!</h1>
+      {owner && (
         <>
           <Formik
-            initialValues={{
-              name: owner.name || ''
-            }}
+            initialValues={{ name: owner.name || '' }}
             onSubmit={(values, actions) => {
               handleSaveProfile(values);
               actions.setSubmitting(false);
@@ -120,9 +76,8 @@ function Profile({onLogout}) {
           >
             {({ values, handleChange, handleSubmit, isSubmitting }) => (
               <form className="box" onSubmit={handleSubmit}>
-                <p className='profile-email'>Email: {owner.email}</p>
-                <div className='input-box'>
-                  {/* <label>Name: </label> */}
+                <p className="profile-email">Email: {owner.email}</p>
+                <div className="input-box">
                   <input
                     type="text"
                     id="name"
@@ -132,40 +87,36 @@ function Profile({onLogout}) {
                     placeholder="Enter your name"
                   />
                 </div>
-                
+
                 <button className="button" type="submit" disabled={isSubmitting}>
                   Save
                 </button>
-                {/* Display the owner's pets */}
-          <h2>Your Pets</h2>
-          {owner.pets && owner.pets.length > 0 ? (
-            <ul>
-              {owner.pets.map((pet) => (
-                <li key={pet.id}>
-                  {pet.name} - {pet.breed}, Age: {pet.age}
-                  <button className='button' onClick={() => handleEditClick(pet)}> Edit </button>
-                  <button className='button' onClick={() => handleDeletePet(pet.id)}>Delete</button>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>You have no pets added yet.</p>
-          )}
-          {editingPet && (
-            <EditPets
-                pet={editingPet}
-                onCancel={handleCancelEdit}
-                updatePets={updatePets}
-            />
-          )}
+
+                <h2>Your Pets</h2>
+                {owner.pets && owner.pets.length > 0 ? (
+                  <ul>
+                    {owner.pets.map((pet) => (
+                      <li key={pet.id}>
+                        {pet.name} - {pet.breed}, Age: {pet.age}
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p>You have no pets added yet.</p>
+                )}
               </form>
             )}
           </Formik>
+
+          {errorMessage && <div className="error">{errorMessage}</div>}
+
           <div className="button-logout">
-          <button className='button-logout' onClick={handleLogout}>Logout</button>
+            <button className="button-logout" onClick={handleLogout}>
+              Logout
+            </button>
           </div>
         </>
-      ) : null}
+      )}
     </div>
   );
 }

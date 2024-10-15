@@ -1,5 +1,6 @@
-from flask import request, make_response
+from flask import request, make_response, jsonify
 from flask_restful import Resource
+from sqlalchemy.exc import SQLAlchemyError
 #from flask_login import login_required
 
 # Local imports
@@ -54,21 +55,33 @@ class PetResource(Resource):
         db.session.delete(pet)
         db.session.commit()
         return make_response({}, 204)
-    
-    # PATCH - Update a specific pet by ID
-    #@login_required
-    def patch(self, pet_id):
+
+    def put(self, pet_id):
+        # Fetch pet from database
         pet = Pet.query.get(pet_id)
         if not pet:
             return {'error': 'Pet not found'}, 404
 
+        # Parse form data from request body
         form_data = request.get_json()
 
-        # Update the pet's details dynamically
-        for attr, value in form_data.items():
-            setattr(pet, attr, value)
+        # Log received data for debugging
+        print(f"Received update data: {form_data}")
 
-        db.session.commit()
-        return make_response(pet.to_dict(), 200)
+        # Update pet attributes only if provided in form data
+        pet.name = form_data.get('name', pet.name)
+        pet.breed = form_data.get('breed', pet.breed)
+        pet.age = form_data.get('age', pet.age)
+
+        # Commit changes to the database
+        try:
+            db.session.commit()
+        except SQLAlchemyError as e:
+            db.session.rollback()
+            return {'error': f"Database error: {str(e)}"}, 500
+
+        # Return the updated pet data as JSON
+        response = make_response(jsonify(pet.to_dict()), 200)
+        return response
     
 api.add_resource(PetResource, '/api/pets', '/api/pets/<int:pet_id>')
