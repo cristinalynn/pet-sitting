@@ -106,13 +106,12 @@ function Profile({onLogout}) {
 
   return (
     <div className='profile'>
-    <h1>Hello {owner ? owner.name : ''}!</h1>
+       <h1>Hello {owner ? owner.name : ''}!</h1>
       {owner ? (
         <>
           <Formik
             initialValues={{
               name: owner.name || ''
-            //   bio: owner.bio || '',
             }}
             onSubmit={(values, actions) => {
               handleSaveProfile(values);

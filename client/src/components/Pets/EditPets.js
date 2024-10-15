@@ -31,14 +31,14 @@ const EditPets = ({ pet, onCancel, updatePets }) => {
 
     try {
       const response = await fetch(`/api/pets/${pet.id}`, {
-        method: 'PUT',
+        method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(formData),
       });
       if (!response.ok) {
-        throw new Error('Failed to update pets');
+        throw new Error('Failed to update pet');
       }
       updatePets(formData);
       onCancel(); // CLOSES EDIT FORM
