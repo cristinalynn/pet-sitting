@@ -103,14 +103,12 @@ def seed_sitters():
     # Clear existing data
     Sitter.query.delete()
 
-    sitter= Sitter(
-            name="Cristina",
-            address="123 Many Animals Rd",
-            email="animal.sitter@email.com",
-            # "availability": ["Full-time", "Part-time", "Occasional"
-    )
+    sitters = [
+        Sitter(name="Cristina", address="123 Many Animals Rd", email="animal.sitter@email.com"),
+        Sitter(name="Jade", address="345 All Animals Ave", email="animal2.sitter@email.com")
+    ]
 
-    db.session.add(sitter)
+    db.session.add_all(sitters)
     db.session.commit()
 
      # Fetch availability types

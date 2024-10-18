@@ -26,6 +26,14 @@ class Owner(db.Model, SerializerMixin, UserMixin):
                 raise ValueError("Email must contain @.")
         return value
     
+    # the validatioon is to check if name is a string. If not a string raise a value error
+    # @validates('name')
+    # def validates_name(self, value):
+    #     if "name" == str:
+    #         return value
+    #     else:
+    #         raise ValueError("Name must be a string")
+
     @hybrid_property
     def password_hash(self):
         return self._password_hash
