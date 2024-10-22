@@ -1,11 +1,13 @@
 // src/store/store.js
 import { configureStore } from '@reduxjs/toolkit';
-import ownerReducer from './reducers/ownerSlice'
+import ownerReducer from './reducers/ownerSlice';
+import petReducer from './reducers/petSlice';
 
-const store = configureStore({
+export default configureStore({
   reducer: {
     owner: ownerReducer,
+    pets: petReducer,
   },
 });
 
-export default store;
+

@@ -1,83 +1,42 @@
 import React, { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { Formik, Form, Field, ErrorMessage } from 'formik';
-import { useNavigate } from 'react-router-dom';
 import * as Yup from 'yup';
+import { fetchPets, editPet, deletePet, selectPets, selectPetsError } from '../../reducers/petSlice';
+import './petform.css';
 
-// Validation schema using Yup
 const validationSchema = Yup.object({
   name: Yup.string().required('Name is required'),
   breed: Yup.string().required('Breed is required'),
-  age: Yup.number()
-    .required('Age is required')
-    .positive('Age must be positive')
-    .integer('Age must be an integer'),
+  age: Yup.number().positive('Age must be positive').integer('Age must be an integer').required('Age is required'),
 });
 
 const EditPets = () => {
-  const [pets, setPets] = useState([]);
+  const dispatch = useDispatch();
+  const pets = useSelector(selectPets);
+  const error = useSelector(selectPetsError);
   const [editingPet, setEditingPet] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
-  const navigate = useNavigate();
 
-  // Fetch the logged-in owner's pets
   useEffect(() => {
-    fetch('/api/check_session')
-      .then((res) => {
-        if (res.ok) return res.json();
-        throw new Error('Failed to fetch session');
-      })
-      .then((ownerData) => setPets(ownerData.pets))
-      .catch((err) => setErrorMessage('Failed to load pets.'));
-  }, []);
-
-  const updatePets = (updatedPet) => {
-    const updatedList = pets.map((pet) =>
-      pet.id === updatedPet.id ? updatedPet : pet
-    );
-    setPets(updatedList);
-    setEditingPet(null); // Close edit form
-  };
+    dispatch(fetchPets());
+  }, [dispatch]);
 
   const handleDeletePet = async (petId) => {
-    try {
-      const response = await fetch(`/api/pets/${petId}`, { method: 'DELETE' });
-      if (response.ok) {
-        setPets(pets.filter((pet) => pet.id !== petId));
-      } else {
-        throw new Error('Failed to delete pet');
-      }
-    } catch (error) {
-      console.error('Error deleting pet:', error);
-      setErrorMessage('Failed to delete pet.');
-    }
+    await dispatch(deletePet(petId));
   };
 
   const handleCancel = () => setEditingPet(null);
 
-  const handleSubmit = async (values, { setSubmitting, setStatus }) => {
-    try {
-      const response = await fetch(`/api/pets/${editingPet.id}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-      });
-
-      if (!response.ok) throw new Error('Failed to update pet');
-      const updatedPet = await response.json();
-      updatePets(updatedPet);
-    } catch (error) {
-      console.error('Update error:', error);
-      setStatus('Update failed');
-    } finally {
-      setSubmitting(false);
-    }
+  const handleSubmit = async (values) => {
+    await dispatch(editPet(values));
+    setEditingPet(null);
   };
 
   return (
     <div className="edit-pet-card">
       <h1>Your Pets</h1>
 
-      {errorMessage && <div className="error">{errorMessage}</div>}
+      {error && <div className="error">{error}</div>}
 
       {pets.length > 0 ? (
         <ul>
@@ -103,7 +62,10 @@ const EditPets = () => {
           <Formik
             initialValues={editingPet}
             validationSchema={validationSchema}
-            onSubmit={handleSubmit}
+            onSubmit={(values, actions) => {
+              handleSubmit(values);
+              actions.setSubmitting(false);
+            }}
           >
             {({ isSubmitting, status }) => (
               <Form>

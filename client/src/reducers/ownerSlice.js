@@ -2,7 +2,7 @@
 import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 
 // Thunk for user login
-export const login = createAsyncThunk('owner/login', async (values, { rejectWithValue }) => {
+export const loginOwner = createAsyncThunk('owner/login', async (values, { rejectWithValue }) => {
   try {
     const response = await fetch('/api/login', {
       method: 'POST',
@@ -98,20 +98,14 @@ const ownerSlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(login.pending, (state) => {
-        state.status = 'loading';
-      })
-      .addCase(login.fulfilled, (state, action) => {
+      .addCase(loginOwner.fulfilled, (state, action) => {
         state.status = 'succeeded';
         state.owner = action.payload;
         state.error = null;
       })
-      .addCase(login.rejected, (state, action) => {
+      .addCase(loginOwner.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
-      })
-      .addCase(signup.pending, (state) => {
-        state.status = 'loading';
       })
       .addCase(signup.fulfilled, (state, action) => {
         state.status = 'succeeded';
@@ -135,6 +129,14 @@ const ownerSlice = createSlice({
         state.status = 'succeeded';
       })
       .addCase(logoutOwner.rejected, (state, action) => {
+        state.status = 'failed';
+        state.error = action.payload;
+      })
+      .addCase(updateOwnerProfile.fulfilled, (state, action) => {
+        state.user = action.payload;
+        state.status = 'succeeded';
+      })
+      .addCase(updateOwnerProfile.rejected, (state, action) => {
         state.status = 'failed';
         state.error = action.payload;
       });

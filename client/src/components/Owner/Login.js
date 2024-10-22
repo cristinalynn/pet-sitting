@@ -1,21 +1,19 @@
 import React from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
-import { useDispatch, useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import { login } from '../../reducers/ownerSlice';
 import './owner.css';
-
+import { loginOwner } from '../../reducers/ownerSlice';
 
 const validationSchema = yup.object({  
   email: yup.string().email('Invalid email address').required('Email required'),
   password: yup.string().min(8, 'Password must be at least 8 characters').required('Password required'),
 });
 
-const Login = ({ onLoginSuccess }) => {
+const Login = () => {
   const dispatch = useDispatch();
   const navigate = useNavigate();
-  
 
   const formik = useFormik({
     initialValues: {
@@ -24,14 +22,13 @@ const Login = ({ onLoginSuccess }) => {
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      try {
-        await dispatch(login(values)).unwrap();
-        onLoginSuccess();
-        navigate('/owner');
-      } catch (error) {
-        console.error('Login error:', error);
-      }
-    },
+        const resultAction = await dispatch(loginOwner(values));
+        if (loginOwner.fulfilled.match(resultAction)) {
+          navigate('/owner');
+        } else {
+           console.error('Login error:', resultAction.payload);
+        }
+      },
   });
 
   return (
@@ -52,6 +49,7 @@ const Login = ({ onLoginSuccess }) => {
               <div className='error'>{formik.errors.email}</div>
             )}
           </div>
+
           <div className="input-box">
             <input
               placeholder="Password"
@@ -65,7 +63,9 @@ const Login = ({ onLoginSuccess }) => {
               <div className='error'>{formik.errors.password}</div>
             )}
           </div>
-          <button className="button" type="submit">Login</button>
+
+          <button className="button" type="submit" >Login</button>
+          
           <p><a href="/signup">Sign Up</a></p>
         </form>
       </div>
