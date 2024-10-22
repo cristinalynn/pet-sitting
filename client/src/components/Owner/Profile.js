@@ -1,65 +1,26 @@
-import React, { useState, useEffect } from 'react';
+import React, { useEffect } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import { Formik } from 'formik';
+import { fetchCurrentOwner, updateOwnerProfile, selectOwner, logoutOwner } from '../../reducers/ownerSlice';
 import './owner.css';
 
-function Profile({ onLogout }) {
-  const [owner, setOwner] = useState(null);
-  const [errorMessage, setErrorMessage] = useState('');
+const Profile = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
+  const owner = useSelector(selectOwner);
 
-  // Fetch the current owner's data on component mount
   useEffect(() => {
-    fetchCurrentOwner();
-  }, []);
+    dispatch(fetchCurrentOwner());
+  }, [dispatch]);
 
-  const fetchCurrentOwner = async () => {
-    try {
-      const response = await fetch('/api/check_session');
-      if (response.ok) {
-        const ownerData = await response.json();
-        setOwner(ownerData);
-      } else {
-        console.error('Failed to fetch current owner');
-      }
-    } catch (error) {
-      console.error('Error fetching current owner:', error);
-    }
-  };
-
-  const handleSaveProfile = async (values) => {
-    try {
-      const response = await fetch(`/api/current_owner/${owner.id}`, {
-        method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(values),
-        credentials: 'include',
-      });
-
-      if (response.ok) {
-        const updatedOwner = await response.json();
-        setOwner(updatedOwner);
-      } else {
-        console.error('Failed to update profile');
-      }
-    } catch (error) {
-      console.error('Error saving profile:', error);
-    }
+  const handleSaveProfile = (values) => {
+    dispatch(updateOwnerProfile(values));
   };
 
   const handleLogout = async () => {
-    try {
-      const response = await fetch('/api/logout', { method: 'POST' });
-      if (response.ok) {
-        setOwner(null);
-        onLogout();
-        navigate('/');
-      } else {
-        console.error('Failed to logout');
-      }
-    } catch (error) {
-      console.error('Error logging out:', error);
-    }
+    await dispatch(logoutOwner());
+    navigate('/');
   };
 
   return (
@@ -108,8 +69,6 @@ function Profile({ onLogout }) {
             )}
           </Formik>
 
-          {errorMessage && <div className="error">{errorMessage}</div>}
-
           <div className="button-logout">
             <button className="button-logout" onClick={handleLogout}>
               Logout
@@ -120,5 +79,6 @@ function Profile({ onLogout }) {
     </div>
   );
 }
+
 
 export default Profile;

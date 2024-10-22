@@ -1,24 +1,23 @@
+
 import React, { useState } from 'react';
 import { useFormik } from 'formik';
 import * as yup from 'yup';
+import { useDispatch, useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
-import './owner.css'
+import { signup } from '../../reducers/ownerSlice';
+import './owner.css';
 
 const validationSchema = yup.object({
-  name: yup.string()
-    .required('Name required'),
-  email: yup.string()
-    .email('Invalid email address')
-    .required('Email required'),
-  password: yup.string()
-    .min(8, 'Password must be at least 8 characters')
-    .required('Password required'),
+  name: yup.string().required('Name required'),
+  email: yup.string().email('Invalid email address').required('Email required'),
+  password: yup.string().min(8, 'Password must be at least 8 characters').required('Password required'),
 });
 
-const SignupForm = ({onSignUpSuccess}) => {
+const SignupForm = () => {
+  const dispatch = useDispatch();
   const navigate = useNavigate();
   const [error, setError] = useState('');
-  const [owner, setOwner] = useState(null);
+  
 
   const formik = useFormik({
     initialValues: {
@@ -28,34 +27,15 @@ const SignupForm = ({onSignUpSuccess}) => {
     },
     validationSchema: validationSchema,
     onSubmit: async (values) => {
-      try {
-        const response = await fetch('/api/signup', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(values),
-        });
-        if (!response.ok) {
-          const data = await response.json();
-          if (response.status === 409 && data.error === 'Email already exists') {
-            setError('Email is already registered');
-          } else {
-            throw new Error('Signup failed');
-          }
-        } else {
-          onSignUpSuccess();
-          const data = await response.json();
-          setOwner(data);
+        const resultAction = await dispatch(signup(values));
+        if (signup.fulfilled.match(resultAction)) {
           navigate('/owner');
+        } else {
+           setError(resultAction.payload);
         }
-      } catch (error) {
-        console.error('Signup error:', error);
-        setError('Signup failed');
-      }
-    },
+      },
   });
-return (
+  return (
     <div className='signupform'>
         <div className="box">
         <form onSubmit={formik.handleSubmit}>
