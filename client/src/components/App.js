@@ -7,6 +7,8 @@ import Login from "./Owner/Login";
 import Profile from "./Owner/Profile";
 import PetForm from "./Pets/PetForm";
 import EditPets from "./Pets/EditPets";
+import store from "../store";
+import { Provider } from "react-redux";
 
 
 function App() {
@@ -22,6 +24,8 @@ function App() {
   };
 
   return (
+    <Provider store={store}>
+
     <Router>
       <NavBar isLoggedIn={isLoggedIn} />
       <Routes>
@@ -40,6 +44,7 @@ function App() {
         <Route path="/owner" element={<Profile onLogout={handleLogout} />} />
       </Routes>
     </Router>
+    </Provider>
   );
 }
 

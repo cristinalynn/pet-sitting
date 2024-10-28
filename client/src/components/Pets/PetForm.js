@@ -1,111 +1,153 @@
 import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
-import { Formik, Form, Field, ErrorMessage } from 'formik';
+import { useNavigate } from 'react-router-dom';
+import { useFormik } from 'formik';
 import * as Yup from 'yup';
-import { fetchPets, editPet, deletePet, selectPets, selectPetsStatus, selectPetsError } from '../../reducers/petSlice';
+import { fetchPets, addPet, selectPets, selectPetsStatus, selectPetsError } from '../../reducers/petSlice';
 import './petform.css';
 
-const validationSchema = Yup.object({
-  name: Yup.string().required('Name is required'),
-  breed: Yup.string().required('Breed is required'),
-  age: Yup.number().positive('Age must be positive').integer('Age must be an integer').required('Age is required'),
-});
-
-const EditPets = () => {
+function PetForm() {
+  const navigate = useNavigate();
   const dispatch = useDispatch();
-  const pets = useSelector(selectPets);
+  const services = useSelector(selectPets); // Assuming services data comes from selectPets
   const status = useSelector(selectPetsStatus);
   const error = useSelector(selectPetsError);
-  const [editingPet, setEditingPet] = useState(null);
+  const [selectedService, setSelectedService] = useState(null);
+  const [successMessage, setSuccessMessage] = useState('');
 
   useEffect(() => {
-    dispatch(fetchPets());
+    dispatch(fetchPets()); // Fetch pets and/or services using this action
   }, [dispatch]);
 
-  const handleDeletePet = async (petId) => {
-    await dispatch(deletePet(petId));
+  const formik = useFormik({
+    initialValues: {
+      name: '',
+      breed: '',
+      age: '',
+      service_id: '',
+    },
+    validationSchema: Yup.object({
+      name: Yup.string().required('Pet name is required'),
+      breed: Yup.string().required('Breed is required'),
+      age: Yup.number()
+        .min(0, 'Age must be a positive number')
+        .required('Age is required'),
+      service_id: Yup.string().required('Please select a service'),
+    }),
+    onSubmit: async (values) => {
+      try {
+        await dispatch(addPet(values)).unwrap();
+        setSuccessMessage('Pet added successfully!');
+        formik.resetForm();
+        setSelectedService(null);
+        navigate('/owner');
+      } catch (error) {
+        console.error('Error submitting form:', error);
+      }
+    },
+  });
+
+  const handleServiceSelect = (service) => {
+    setSelectedService(service);
+    formik.setFieldValue('service_id', service.id);
   };
 
-  const handleCancel = () => setEditingPet(null);
-
-  const handleSubmit = async (values) => {
-    await dispatch(editPet(values));
-    setEditingPet(null);
+  const formatDuration = (minutes) => {
+    if (minutes < 60) return `${minutes} minutes`;
+    const hours = Math.floor(minutes / 60);
+    const remainingMinutes = minutes % 60;
+    return `${hours} hour${hours > 1 ? 's' : ''}${remainingMinutes ? `, ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}` : ''}`;
   };
 
   return (
-    <div className="edit-pet-card">
-      <h1>Your Pets</h1>
+    <div className="add-pet-card">
+      <h2>Add a New Pet</h2>
+      {successMessage && <p className="success-message">{successMessage}</p>}
+      {status === 'loading' && <p className="loading">Loading services...</p>}
+      {error && <p className="error-message">{error}</p>}
 
-      {/* Display loading state */}
-      {status === 'loading' && <div className="loading">Loading pets...</div>}
-      
-      {/* Display error message */}
-      {error && <div className="error">{error}</div>}
-
-      {/* Display pets if available */}
-      {status === 'succeeded' && pets.length > 0 ? (
-        <ul>
-          {pets.map((pet) => (
-            <li key={pet.id}>
-              {pet.name} - {pet.breed}, Age: {pet.age}
-              <button className="button" onClick={() => setEditingPet(pet)}>
-                Edit
-              </button>
-              <button className="button" onClick={() => handleDeletePet(pet.id)}>
-                Delete
-              </button>
-            </li>
-          ))}
-        </ul>
-      ) : (
-        status === 'succeeded' && <p>You have no pets added yet.</p>
-      )}
-
-      {/* Display form for editing pet */}
-      {editingPet && (
-        <div className="edit-pets-form">
-          <h2>Edit Pet Data</h2>
-          <Formik
-            initialValues={editingPet}
-            validationSchema={validationSchema}
-            onSubmit={(values, actions) => {
-              handleSubmit(values);
-              actions.setSubmitting(false);
-            }}
-          >
-            {({ isSubmitting, status }) => (
-              <Form>
-                <div className="input-box">
-                  <Field name="name" type="text" placeholder="Name" />
-                  <ErrorMessage name="name" component="div" className="error" />
-                </div>
-
-                <div className="input-box">
-                  <Field name="breed" type="text" placeholder="Breed" />
-                  <ErrorMessage name="breed" component="div" className="error" />
-                </div>
-
-                <div className="input-box">
-                  <Field name="age" type="number" placeholder="Age" />
-                  <ErrorMessage name="age" component="div" className="error" />
-                </div>
-
-                <button type="submit" disabled={isSubmitting}>
-                  {isSubmitting ? 'Saving...' : 'Save'}
-                </button>
-                <button type="button" onClick={handleCancel}>
-                  Cancel
-                </button>
-
-                {status && <div className="error">{status}</div>}
-              </Form>
-            )}
-          </Formik>
+      <form onSubmit={formik.handleSubmit}>
+        <div>
+          <label>Pet Name:</label>
+          <input
+            type="text"
+            name="name"
+            value={formik.values.name}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.name && formik.errors.name && (
+            <div className="error-message">{formik.errors.name}</div>
+          )}
         </div>
-      )}
+
+        <div>
+          <label>Breed:</label>
+          <input
+            type="text"
+            name="breed"
+            value={formik.values.breed}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.breed && formik.errors.breed && (
+            <div className="error-message">{formik.errors.breed}</div>
+          )}
+        </div>
+
+        <div>
+          <label>Age:</label>
+          <input
+            type="number"
+            name="age"
+            value={formik.values.age}
+            onChange={formik.handleChange}
+            onBlur={formik.handleBlur}
+          />
+          {formik.touched.age && formik.errors.age && (
+            <div className="error-message">{formik.errors.age}</div>
+          )}
+        </div>
+
+        <div>
+          <h3>Select a Service</h3>
+          <table border="1" cellPadding="10">
+            <thead>
+              <tr>
+                <th>Service Name</th>
+                <th>Price ($)</th>
+                <th>Duration</th>
+              </tr>
+            </thead>
+            <tbody>
+              {services.map((service) => (
+                <tr
+                  key={service.id}
+                  onClick={() => handleServiceSelect(service)}
+                  style={{
+                    backgroundColor: selectedService?.id === service.id ? 'lightblue' : 'white',
+                    cursor: 'pointer',
+                  }}
+                >
+                  <td>{service.name}</td>
+                  <td>{service.price}</td>
+                  <td>{formatDuration(service.duration)}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          {selectedService && <p>Selected Service: {selectedService.name}</p>}
+          {formik.touched.service_id && formik.errors.service_id && (
+            <div className="error-message">{formik.errors.service_id}</div>
+          )}
+        </div>
+
+        <button type="submit" disabled={status === 'loading'}>
+          {status === 'loading' ? 'Adding Pet...' : 'Add Pet'}
+        </button>
+      </form>
     </div>
   );
-};
+}
 
-export default EditPets;
+export default PetForm;
