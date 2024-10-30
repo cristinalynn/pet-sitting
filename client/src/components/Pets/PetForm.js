@@ -1,23 +1,49 @@
-import React, { useEffect, useState } from 'react';
-import { useDispatch, useSelector } from 'react-redux';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useFormik } from 'formik';
-import * as Yup from 'yup';
-import { fetchPets, addPet, selectPets, selectPetsStatus, selectPetsError } from '../../reducers/petSlice';
+import * as Yup from 'yup'; // For form validation schema
 import './petform.css';
 
 function PetForm() {
   const navigate = useNavigate();
-  const dispatch = useDispatch();
-  const services = useSelector(selectPets); // Assuming services data comes from selectPets
-  const status = useSelector(selectPetsStatus);
-  const error = useSelector(selectPetsError);
+  const [currentOwner, setCurrentOwner] = useState(null);
+  const [services, setServices] = useState([]);
   const [selectedService, setSelectedService] = useState(null);
   const [successMessage, setSuccessMessage] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
-    dispatch(fetchPets()); // Fetch pets and/or services using this action
-  }, [dispatch]);
+    const fetchCurrentOwner = async () => {
+      try {
+        const response = await fetch('/api/check_session');
+        if (response.ok) {
+          const ownerData = await response.json();
+          setCurrentOwner(ownerData);
+          formik.setFieldValue('owner_id', ownerData.id); // Set owner_id in Formik
+        } else {
+          navigate('/login');
+        }
+      } catch (error) {
+        console.error('Error fetching owner data:', error);
+      }
+    };
+
+    fetchCurrentOwner();
+  }, [navigate]);
+
+  useEffect(() => {
+    fetchServices();
+  }, []);
+
+  const fetchServices = async () => {
+    try {
+      const response = await fetch('/api/services');
+      const data = await response.json();
+      setServices(data);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    }
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -25,6 +51,7 @@ function PetForm() {
       breed: '',
       age: '',
       service_id: '',
+      owner_id: '', // This will be populated by the owner session check
     },
     validationSchema: Yup.object({
       name: Yup.string().required('Pet name is required'),
@@ -36,35 +63,63 @@ function PetForm() {
     }),
     onSubmit: async (values) => {
       try {
-        await dispatch(addPet(values)).unwrap();
-        setSuccessMessage('Pet added successfully!');
-        formik.resetForm();
-        setSelectedService(null);
-        navigate('/owner');
+        const response = await fetch('/api/pets', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(values),
+        });
+
+        if (response.ok) {
+          setSuccessMessage('Pet added successfully!');
+          setErrorMessage('');
+
+          formik.resetForm();
+          setSelectedService(null);
+          navigate('/owner');
+        } else {
+          const errorData = await response.json();
+          setErrorMessage(errorData.error || 'Failed to add the pet.');
+          setSuccessMessage('');
+        }
       } catch (error) {
         console.error('Error submitting form:', error);
+        setErrorMessage('An error occurred while submitting the form.');
+        setSuccessMessage('');
       }
     },
   });
 
   const handleServiceSelect = (service) => {
     setSelectedService(service);
-    formik.setFieldValue('service_id', service.id);
+    formik.setFieldValue('service_id', service.id); // Set service_id in Formik
   };
 
   const formatDuration = (minutes) => {
-    if (minutes < 60) return `${minutes} minutes`;
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return `${hours} hour${hours > 1 ? 's' : ''}${remainingMinutes ? `, ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}` : ''}`;
+    if (minutes < 60) {
+      return `${minutes} minutes`;
+    } else if (minutes < 1440) {
+      const hours = Math.floor(minutes / 60);
+      const remainingMinutes = minutes % 60;
+      return `${hours} hour${hours > 1 ? 's' : ''}${
+        remainingMinutes > 0 ? `, ${remainingMinutes} minute${remainingMinutes > 1 ? 's' : ''}` : ''
+      }`;
+    } else {
+      const days = Math.floor(minutes / 1440);
+      const remainingMinutes = minutes % 1440;
+      const hours = Math.floor(remainingMinutes / 60);
+      return `${days} day${days > 1 ? 's' : ''}${
+        hours > 0 ? `, ${hours} hour${hours > 1 ? 's' : ''}` : ''
+      }`;
+    }
   };
 
   return (
     <div className="add-pet-card">
       <h2>Add a New Pet</h2>
       {successMessage && <p className="success-message">{successMessage}</p>}
-      {status === 'loading' && <p className="loading">Loading services...</p>}
-      {error && <p className="error-message">{error}</p>}
+      {errorMessage && <p className="error-message">{errorMessage}</p>}
 
       <form onSubmit={formik.handleSubmit}>
         <div>
@@ -75,10 +130,11 @@ function PetForm() {
             value={formik.values.name}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
+            required
           />
-          {formik.touched.name && formik.errors.name && (
+          {formik.touched.name && formik.errors.name ? (
             <div className="error-message">{formik.errors.name}</div>
-          )}
+          ) : null}
         </div>
 
         <div>
@@ -89,10 +145,11 @@ function PetForm() {
             value={formik.values.breed}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
+            required
           />
-          {formik.touched.breed && formik.errors.breed && (
+          {formik.touched.breed && formik.errors.breed ? (
             <div className="error-message">{formik.errors.breed}</div>
-          )}
+          ) : null}
         </div>
 
         <div>
@@ -103,10 +160,11 @@ function PetForm() {
             value={formik.values.age}
             onChange={formik.handleChange}
             onBlur={formik.handleBlur}
+            required
           />
-          {formik.touched.age && formik.errors.age && (
+          {formik.touched.age && formik.errors.age ? (
             <div className="error-message">{formik.errors.age}</div>
-          )}
+          ) : null}
         </div>
 
         <div>
@@ -125,7 +183,8 @@ function PetForm() {
                   key={service.id}
                   onClick={() => handleServiceSelect(service)}
                   style={{
-                    backgroundColor: selectedService?.id === service.id ? 'lightblue' : 'white',
+                    backgroundColor:
+                      selectedService?.id === service.id ? 'lightblue' : 'white',
                     cursor: 'pointer',
                   }}
                 >
@@ -137,14 +196,12 @@ function PetForm() {
             </tbody>
           </table>
           {selectedService && <p>Selected Service: {selectedService.name}</p>}
-          {formik.touched.service_id && formik.errors.service_id && (
+          {formik.touched.service_id && formik.errors.service_id ? (
             <div className="error-message">{formik.errors.service_id}</div>
-          )}
+          ) : null}
         </div>
 
-        <button type="submit" disabled={status === 'loading'}>
-          {status === 'loading' ? 'Adding Pet...' : 'Add Pet'}
-        </button>
+        <button type="submit">Add Pet</button>
       </form>
     </div>
   );

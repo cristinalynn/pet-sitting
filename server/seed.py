@@ -117,7 +117,8 @@ def seed_sitters():
     occasional = Availability.query.filter_by(type="Occasional").first()
 
     # Associate the sitter with all availability types
-    sitters.availabilities = [full_time, part_time, occasional]
+    for sitter in sitters:
+        sitter.availabilities = [full_time, part_time, occasional]
 
     # Commit the changes to the database
     db.session.commit()

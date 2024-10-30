@@ -21,7 +21,7 @@ export const loginOwner = createAsyncThunk('owner/login', async (values, { rejec
   }
 });
 
-// Thunk for user signup
+// Thunk for owner signup
 export const signup = createAsyncThunk('owner/signup', async (values, { rejectWithValue }) => {
   try {
     const response = await fetch('/api/signup', {
