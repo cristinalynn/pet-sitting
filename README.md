@@ -1,4 +1,4 @@
-# Hapy Tails
+# Happy Tails
 
 Happy Tails is a React-Flask full-stack application that allows pet owners to add, edit and delete their pets to the database along with choosing a service for pet sitting. It  also comes with sign up and login features. Each owner can deploy full CRUD operations on their pets. 
 
